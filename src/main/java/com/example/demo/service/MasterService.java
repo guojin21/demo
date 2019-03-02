@@ -34,7 +34,7 @@ public class MasterService extends BaseService {
             MessageDTO dto = new MessageDTO();
             List<String> datas = new ArrayList<>();
             dto.setBatchId("task" + i);
-            int value = (int) Math.random() * 5 + 1;
+            int value = (int) (Math.random() * 3) + 1;
             for (int j = 0; j < value; j++) {
                 datas.add("data content " + j);
             }
@@ -104,6 +104,6 @@ public class MasterService extends BaseService {
                     }
                 }
             }
-        }, 100, 20, TimeUnit.SECONDS);
+        }, 50, 20, TimeUnit.SECONDS);
     }
 }

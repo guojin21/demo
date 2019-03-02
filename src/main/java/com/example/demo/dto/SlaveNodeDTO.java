@@ -23,4 +23,12 @@ public class SlaveNodeDTO {
     public void setPort(String port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return "SlaveNodeDTO{" +
+                "host='" + host + '\'' +
+                ", port='" + port + '\'' +
+                '}';
+    }
 }

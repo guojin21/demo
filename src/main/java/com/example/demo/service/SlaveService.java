@@ -26,7 +26,7 @@ public class SlaveService extends BaseService {
 
         // 向主节点发送一条消息，告知从节点已上线，添加到主节点缓存中
         try {
-            pushDataByREST(masterUrl, param, HttpMethod.GET);
+            pushDataByREST(masterUrl, param, HttpMethod.POST);
         } catch (Exception e) {
             logger.error("向主节点发起注册从节点失败", e);
         }

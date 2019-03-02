@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +30,7 @@ public class ExecutorController {
      * @return
      */
     @PostMapping("/run")
-    public String run(MessageDTO dto) {
+    public String run(@RequestBody MessageDTO dto) {
         logger.info("接收到任务{}，开始执行", dto);
 
         //固定线程数为10个
@@ -50,6 +51,7 @@ public class ExecutorController {
             try {
                 // 模拟该任务所需执行时间
                 Thread.sleep(dto.getElapsedTime());
+                logger.info("任务执行结束，耗时："+dto.getElapsedTime());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
