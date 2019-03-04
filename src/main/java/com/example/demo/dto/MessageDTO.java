@@ -5,7 +5,7 @@ import java.util.List;
 public class MessageDTO {
 
     // 批次id
-    private String batchId;
+    private Integer batchId;
 
     // 封装的多条任务
     private List<String> datas;
@@ -13,11 +13,11 @@ public class MessageDTO {
     // 模拟处理多条任务的耗时
     private Integer elapsedTime;
 
-    public String getBatchId() {
+    public Integer getBatchId() {
         return batchId;
     }
 
-    public void setBatchId(String batchId) {
+    public void setBatchId(Integer batchId) {
         this.batchId = batchId;
     }
 
@@ -35,5 +35,14 @@ public class MessageDTO {
 
     public void setElapsedTime(Integer elapsedTime) {
         this.elapsedTime = elapsedTime;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageDTO{" +
+                "batchId='" + batchId + '\'' +
+                ", datas=" + datas +
+                ", elapsedTime=" + elapsedTime +
+                '}';
     }
 }

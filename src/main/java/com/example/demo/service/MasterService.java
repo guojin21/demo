@@ -22,7 +22,7 @@ public class MasterService extends BaseService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public static Set<MessageDTO> dataSource = new HashSet<MessageDTO>();
+    public static List<MessageDTO> dataSource = new ArrayList<>();
 
 
     /**
@@ -33,7 +33,7 @@ public class MasterService extends BaseService {
         for (int i = 0; i < 100; i++) {
             MessageDTO dto = new MessageDTO();
             List<String> datas = new ArrayList<>();
-            dto.setBatchId("task" + i);
+            dto.setBatchId(i + 1);
             int value = (int) (Math.random() * 3) + 1;
             for (int j = 0; j < value; j++) {
                 datas.add("data content " + j);
@@ -41,7 +41,9 @@ public class MasterService extends BaseService {
             dto.setDatas(datas);
             dto.setElapsedTime(value * 1000);
             dataSource.add(dto);
+
         }
+        logger.info("datasource.size=" + dataSource.size());
 
     }
 
@@ -57,18 +59,6 @@ public class MasterService extends BaseService {
         // 初始化任务数据
         init();
 
-
-//        // 自旋等待，直到从节点上线
-//        while(CommonCache.slaveNodeSet.size() == 0){
-//            try {
-//                Thread.sleep(5000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            continue;
-//        }
-
-
         // 对接上游数据源，此处为了演示，模拟一个定时任务来发送数据
         ExecutorService timer = Executors.newScheduledThreadPool(10);
         ((ScheduledExecutorService) timer).scheduleAtFixedRate(new Runnable() {
@@ -77,31 +67,27 @@ public class MasterService extends BaseService {
 
                 // 获取需要发送任务的从节点信息
                 int slaveNums = CommonCache.slaveNodeSet.size();
+                logger.info("当前从节点个数为：{}", slaveNums);
+                if (slaveNums == 0) return;
                 for (MessageDTO dto : dataSource) {
                     int shard = dto.getBatchId().hashCode() % slaveNums;
                     SlaveNodeDTO slaveNodeDTO = CommonCache.slaveNodeSet.get(shard);
 
                     String url = "http://" + slaveNodeDTO.getHost() + ":" + slaveNodeDTO.getPort() + "/executor/run";
                     String param = new Gson().toJson(dto);
-                    for (int count = 3; count > 0; count--) {
-                        if (count == 0) {
-                            // TODO 将该任务存储到数据库或者文件中
-                            logger.info("该任务[{}]派发超过3次依然失败，存储到文件或数据库：", param);
-                        }
-                        try {
-                            String result = pushDataByREST(url, param, HttpMethod.POST);
-                            logger.info("该任务[{}]派发成功", param);
-                            if (null != result && "".equals(result)) {
-                                break;
-                            } else {
-                                continue;
-                            }
-                        } catch (Exception e) {
-                            logger.error("派发任务异常", e.getMessage());
-                            continue;
-                        }
-
+                    String result = null;
+                    try {
+                        result = pushDataByREST(url, param, HttpMethod.POST);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                    logger.info("该任务id[{}]派发到从节点[{}]成功", dto.getBatchId(), slaveNodeDTO);
+                    if (null != result && "".equals(result)) {
+                        break;
+                    } else {
+                        continue;
+                    }
+
                 }
             }
         }, 50, 20, TimeUnit.SECONDS);

@@ -26,6 +26,7 @@ public class ExecutorController {
 
     /**
      * 异步并使用线程池来处理主节点派发来的任务
+     *
      * @param dto
      * @return
      */
@@ -51,7 +52,7 @@ public class ExecutorController {
             try {
                 // 模拟该任务所需执行时间
                 Thread.sleep(dto.getElapsedTime());
-                logger.info("任务执行结束，耗时："+dto.getElapsedTime());
+                logger.info("任务id[{}]执行结束，耗时：{}", dto.getBatchId(), dto.getElapsedTime());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
